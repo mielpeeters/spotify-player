@@ -408,6 +408,24 @@ fn render_playback_progress_bar(
                 )),
             rect,
         ),
+        config::ProgressBarType::EscapeSequence => {
+            // Ghostty terminal progress bar integration
+            // see https://ghostty.org/docs/install/release-notes/1-2-0#graphical-progress-bars
+            // and https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC
+            let ratio_percentage = (ratio * 100.0).round() as u8;
+            print!("\x1b]9;4;1;{ratio_percentage}\x07");
+            frame.render_widget(
+                Paragraph::new(Span::styled(
+                    format!(
+                        "{}/{}",
+                        crate::utils::format_duration(&progress),
+                        crate::utils::format_duration(&duration),
+                    ),
+                    Style::default().add_modifier(Modifier::BOLD),
+                )),
+                rect,
+            );
+        }
     }
 
     // update the progress bar's position stored inside the UI state
